@@ -4,6 +4,7 @@ import string
 
 import pandas as pd
 
+from stemmer import stemmer
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -24,15 +25,21 @@ def remove_stop_words(df):
     return df
 
 
+def stem_data(df):
+    df['text'] = df.apply(stemmer, args=('text',), axis=1)
+    return df
+
+
 def clean_data():
     try:
         appended_data = []
-        files = ['politics.csv']
+        files = ['automobile.csv', 'crime,csv', 'entertainment.csv', 'health.csv', 'politics.csv', 'sport.csv']
         for file in files:
             file_path = BASE_DIR + f'/data/{file}'
             df = pd.read_csv(file_path)
-            df['text'] = df['content'] + df['title']
+            df['text'] = df['title'] + df['content']
             df = remove_stop_words(df)
+            df = stem_data(df)
             appended_data.append(df)
             print(f'{file}')
         file_path = BASE_DIR + f'/data/data_output.csv'
