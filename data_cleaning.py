@@ -25,15 +25,36 @@ def remove_stop_words(df):
     return df
 
 
+def stem(row, key):
+    text = row[key]
+    try:
+        t = stemmer(text)
+    except:
+        t = ""
+    return t
+
+
 def stem_data(df):
-    df['text'] = df.apply(stemmer, args=('text',), axis=1)
+    df['text'] = df.apply(stem, args=('text',), axis=1)
     return df
+
+
+def normalize_data():
+    try:
+        files = ['automobile.csv', 'crime.csv', 'entertainment.csv', 'health.csv', 'politics.csv', 'sport.csv']
+        for file in files:
+            file_path = BASE_DIR + f'/data/original/{file}'
+            df = pd.read_csv(file_path)
+            new_df = df.head(618)
+            new_df.to_csv(BASE_DIR + f'/data/{file}')
+    except Exception as e:
+        print(e)
 
 
 def clean_data():
     try:
         appended_data = []
-        files = ['automobile.csv', 'crime,csv', 'entertainment.csv', 'health.csv', 'politics.csv', 'sport.csv']
+        files = ['automobile.csv', 'crime.csv', 'entertainment.csv', 'health.csv', 'politics.csv', 'sport.csv']
         for file in files:
             file_path = BASE_DIR + f'/data/{file}'
             df = pd.read_csv(file_path)

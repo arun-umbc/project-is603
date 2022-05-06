@@ -62,7 +62,7 @@ class ArticleDetailsScraper(object):
 
     def write_to_csv(self, data):
         keys = data[0].keys()
-        with open(f'data/{self.category}.csv', 'w', newline='') as output_file:
+        with open(f'data/original/{self.category}.csv', 'w', newline='') as output_file:
             dict_writer = csv.DictWriter(output_file, keys)
             dict_writer.writeheader()
             dict_writer.writerows(data)
