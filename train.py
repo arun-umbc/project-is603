@@ -5,7 +5,9 @@ from keras.preprocessing import text, sequence
 from pandas import read_csv
 from sklearn import model_selection, preprocessing, metrics, naive_bayes, linear_model, svm, ensemble
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.metrics import ConfusionMatrixDisplay
 from tensorflow.keras import optimizers
+import matplotlib.pyplot as plt
 
 CATEGORIES = ['automobile', 'crime', 'entertainment', 'health', 'politics', 'sport']
 
@@ -220,6 +222,13 @@ def create_bi_rnn(word_index, embedding_matrix):
     return model
 
 
+def plot_confusion_matrix(predictions, valid_y, classifier):
+    cm = metrics.confusion_matrix(predictions, valid_y, labels=classifier.classes_)
+    d = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classifier.classes_)
+    d.plot()
+    plt.show()
+
+
 def train_model(classifier, feature_vector_train, label, feature_vector_valid, valid_y, name, is_neural_net=False):
     """ model training """
 
@@ -231,7 +240,7 @@ def train_model(classifier, feature_vector_train, label, feature_vector_valid, v
 
     if is_neural_net:
         predictions = predictions.argmax(axis=-1)
-
+    plot_confusion_matrix(predictions, valid_y, classifier)
     return metrics.accuracy_score(predictions, valid_y)
 
 
