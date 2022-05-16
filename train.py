@@ -222,14 +222,14 @@ def create_bi_rnn(word_index, embedding_matrix):
     return model
 
 
-def plot_confusion_matrix(predictions, valid_y, classifier):
+def plot_confusion_matrix(predictions, valid_y, classifier, name, feat):
     cm = metrics.confusion_matrix(predictions, valid_y, labels=classifier.classes_)
     d = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classifier.classes_)
     d.plot()
-    plt.show()
+    plt.savefig(f'{name}_{feat}.png')
 
 
-def train_model(classifier, feature_vector_train, label, feature_vector_valid, valid_y, name, is_neural_net=False):
+def train_model(classifier, feature_vector_train, label, feature_vector_valid, valid_y, name, feat, is_neural_net=False):
     """ model training """
 
     # fit the training data set on the classifier
@@ -240,31 +240,35 @@ def train_model(classifier, feature_vector_train, label, feature_vector_valid, v
 
     if is_neural_net:
         predictions = predictions.argmax(axis=-1)
-    plot_confusion_matrix(predictions, valid_y, classifier)
+    plot_confusion_matrix(predictions, valid_y, classifier, name, feat)
     return metrics.accuracy_score(predictions, valid_y)
 
 
 def test_cnn_accuracy(word_index, embedding_matrix, train_seq_x, train_y, valid_seq_x, valid_y):
     classifier = create_cnn(word_index, embedding_matrix)
-    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn')
+    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn',
+                           feat='word_embedding')
     print("CNN, Word Embeddings", accuracy)
 
 
 def test_rnn_lstm_accuracy(word_index, embedding_matrix, train_seq_x, train_y, valid_seq_x, valid_y):
     classifier = create_rnn_lstm(word_index, embedding_matrix)
-    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn')
+    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn',
+                           feat='word_embedding')
     print("RNN_LSTM, Word Embeddings", accuracy)
 
 
 def test_rnn_gru_accuracy(word_index, embedding_matrix, train_seq_x, train_y, valid_seq_x, valid_y):
     classifier = create_rnn_gru(word_index, embedding_matrix)
-    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn')
+    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn',
+                           feat='word_embedding')
     print("RNN_GRU, Word Embeddings", accuracy)
 
 
 def test_rnn_bi_accuracy(word_index, embedding_matrix, train_seq_x, train_y, valid_seq_x, valid_y):
     classifier = create_bi_rnn(word_index, embedding_matrix)
-    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn')
+    accuracy = train_model(classifier, train_seq_x, train_y, valid_seq_x, valid_y, is_neural_net=True, name='cnn',
+                           feat='word_embedding')
     print("RNN_BI, Word Embeddings", accuracy)
 
 
@@ -272,22 +276,22 @@ def test_nb_accuracy(x_train_count, x_train_tfidf, x_train_tfidf_ngram, x_train_
                      x_valid_count, x_valid_tfidf, x_valid_tfidf_ngram, x_valid_tfidf_ngram_chars, valid_y):
     # Naive Bayes on Count Vectors
     accuracy = train_model(naive_bayes.MultinomialNB(), x_train_count, train_y, x_valid_count, valid_y,
-                           name="count_vector")
+                           feat="count_vector", name='NB')
     print("NB, Count Vectors: ", accuracy)
 
     # Naive Bayes on Word Level TF IDF Vectors
     accuracy = train_model(naive_bayes.MultinomialNB(), x_train_tfidf, train_y, x_valid_tfidf, valid_y,
-                           name="word_level")
+                           feat="word_level", name='NB')
     print("NB, WordLevel TF-IDF: ", accuracy)
 
     # Naive Bayes on Ngram Level TF IDF Vectors
     accuracy = train_model(naive_bayes.MultinomialNB(), x_train_tfidf_ngram, train_y, x_valid_tfidf_ngram, valid_y,
-                           name="n_gram_vector")
+                           feat="n_gram_vector", name='NB')
     print("NB, N-Gram Vectors: ", accuracy)
 
     # Naive Bayes on Character Level TF IDF Vectors
     accuracy = train_model(naive_bayes.MultinomialNB(), x_train_tfidf_ngram_chars, train_y, x_valid_tfidf_ngram_chars,
-                           valid_y, name="char_level_vector")
+                           valid_y, feat="char_level_vector", name='NB')
     print("NB, CharLevel Vectors: ", accuracy)
 
 
@@ -295,22 +299,22 @@ def test_logistic_accuracy(x_train_count, x_train_tfidf, x_train_tfidf_ngram, x_
                            x_valid_count, x_valid_tfidf, x_valid_tfidf_ngram, x_valid_tfidf_ngram_chars, valid_y):
     # Logistic regression on Count Vectors
     accuracy = train_model(linear_model.LogisticRegression(), x_train_count, train_y, x_valid_count, valid_y,
-                           name="count_vector")
+                           feat="count_vector", name='LR')
     print("LR, Count Vectors: ", accuracy)
 
     # Logistic regression on Word Level TF IDF Vectors
     accuracy = train_model(linear_model.LogisticRegression(), x_train_tfidf, train_y, x_valid_tfidf, valid_y,
-                           name="word_level")
+                           feat="word_level", name='LR')
     print("LR, WordLevel TF-IDF: ", accuracy)
 
     # Logistic regression on Ngram Level TF IDF Vectors
     accuracy = train_model(linear_model.LogisticRegression(), x_train_tfidf_ngram, train_y, x_valid_tfidf_ngram, valid_y,
-                           name="n_gram_vector")
+                           feat="n_gram_vector", name='LR')
     print("LR, N-Gram Vectors: ", accuracy)
 
     # Logistic regression on Character Level TF IDF Vectors
     accuracy = train_model(linear_model.LogisticRegression(), x_train_tfidf_ngram_chars, train_y, x_valid_tfidf_ngram_chars,
-                           valid_y, name="char_level_vector")
+                           valid_y, feat="char_level_vector", name='LR')
     print("LR, CharLevel Vectors: ", accuracy)
 
 
@@ -318,22 +322,22 @@ def test_svm_accuracy(x_train_count, x_train_tfidf, x_train_tfidf_ngram, x_train
                       x_valid_count, x_valid_tfidf, x_valid_tfidf_ngram, x_valid_tfidf_ngram_chars, valid_y):
     # Support Vector Machine on Count Vectors
     accuracy = train_model(svm.SVC(), x_train_count, train_y, x_valid_count, valid_y,
-                           name="count_vector")
+                           feat="count_vector", name='SVM')
     print("SVM, Count Vectors: ", accuracy)
 
     # Support Vector Machine on Word Level TF IDF Vectors
     accuracy = train_model(svm.SVC(), x_train_tfidf, train_y, x_valid_tfidf, valid_y,
-                           name="word_level")
+                           feat="word_level", name='SVM')
     print("SVM, WordLevel TF-IDF: ", accuracy)
 
     # Support Vector Machine on Ngram Level TF IDF Vectors
     accuracy = train_model(svm.SVC(), x_train_tfidf_ngram, train_y, x_valid_tfidf_ngram, valid_y,
-                           name="n_gram_vector")
+                           feat="n_gram_vector", name='SVM')
     print("SVM, N-Gram Vectors: ", accuracy)
 
     # Support Vector Machine on Character Level TF IDF Vectors
     accuracy = train_model(svm.SVC(), x_train_tfidf_ngram_chars, train_y, x_valid_tfidf_ngram_chars,
-                           valid_y, name="char_level_vector")
+                           valid_y, feat="char_level_vector", name='SVM')
     print("SVM, CharLevel Vectors: ", accuracy)
 
 
@@ -341,22 +345,22 @@ def test_rf_accuracy(x_train_count, x_train_tfidf, x_train_tfidf_ngram, x_train_
                      x_valid_count, x_valid_tfidf, x_valid_tfidf_ngram, x_valid_tfidf_ngram_chars, valid_y):
     # Random Forest on Count Vectors
     accuracy = train_model(ensemble.RandomForestClassifier(), x_train_count, train_y, x_valid_count, valid_y,
-                           name="count_vector")
+                           feat="count_vector", name='RF')
     print("RF, Count Vectors: ", accuracy)
 
     # Random Forest on Word Level TF IDF Vectors
     accuracy = train_model(ensemble.RandomForestClassifier(), x_train_tfidf, train_y, x_valid_tfidf, valid_y,
-                           name="word_level")
+                           feat="word_level", name='RF')
     print("RF, WordLevel TF-IDF: ", accuracy)
 
     # Random Forest on Ngram Level TF IDF Vectors
     accuracy = train_model(ensemble.RandomForestClassifier(), x_train_tfidf_ngram, train_y, x_valid_tfidf_ngram, valid_y,
-                           name="n_gram_vector")
+                           feat="n_gram_vector", name='RF')
     print("RF, N-Gram Vectors: ", accuracy)
 
     # Random Forest on Character Level TF IDF Vectors
     accuracy = train_model(ensemble.RandomForestClassifier(), x_train_tfidf_ngram_chars, train_y, x_valid_tfidf_ngram_chars,
-                           valid_y, name="char_level_vector")
+                           valid_y, feat="char_level_vector", name='RF')
     print("RF, CharLevel Vectors: ", accuracy)
 
 
@@ -364,20 +368,20 @@ def test_xg_accuracy(x_train_count, x_train_tfidf, x_train_tfidf_ngram, x_train_
                      x_valid_count, x_valid_tfidf, x_valid_tfidf_ngram, x_valid_tfidf_ngram_chars, valid_y):
     # XGBoost on Count Vectors
     accuracy = train_model(xgboost.XGBClassifier(), x_train_count, train_y, x_valid_count, valid_y,
-                           name="count_vector")
+                           feat="count_vector", name='XG')
     print("XG, Count Vectors: ", accuracy)
 
     # XGBoost on Word Level TF IDF Vectors
     accuracy = train_model(xgboost.XGBClassifier(), x_train_tfidf, train_y, x_valid_tfidf, valid_y,
-                           name="word_level")
+                           feat="word_level", name='XG')
     print("XG, WordLevel TF-IDF: ", accuracy)
 
     # XGBoost on Ngram Level TF IDF Vectors
     accuracy = train_model(xgboost.XGBClassifier(), x_train_tfidf_ngram, train_y, x_valid_tfidf_ngram, valid_y,
-                           name="n_gram_vector")
+                           feat="n_gram_vector", name='XG')
     print("XG, N-Gram Vectors: ", accuracy)
 
     # XGBoost on Character Level TF IDF Vectors
     accuracy = train_model(xgboost.XGBClassifier(), x_train_tfidf_ngram_chars, train_y, x_valid_tfidf_ngram_chars,
-                           valid_y, name="char_level_vector")
+                           valid_y, feat="char_level_vector", name='XG')
     print("XG, CharLevel Vectors: ", accuracy)
